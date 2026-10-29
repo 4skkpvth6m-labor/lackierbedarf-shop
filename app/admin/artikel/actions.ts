@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { requireAdmin } from "@/lib/auth"
 import { db } from "@/lib/supabase/admin"
+import { readFile } from "node:fs/promises"
+import path from "node:path"
 import { parseCsv, parsePrice } from "@/lib/csv"
 import type { Product, Category } from "@/lib/types"
 
@@ -42,6 +44,16 @@ export async function importCsv(_: ImportResult | null, formData: FormData): Pro
   const buf = Buffer.from(await file.arrayBuffer())
   let text = buf.toString("utf8")
   if (text.includes("�")) text = buf.toString("latin1") // Excel speichert CSV oft als Windows-1252
+  return importText(text)
+}
+
+// Lädt den mitgelieferten Startkatalog (data/artikel.csv, 2.566 Artikel) in die Datenbank.
+export async function importStartCatalog(_: ImportResult | null): Promise<ImportResult> {
+  await requireAdmin()
+  return importText(await readFile(path.join(process.cwd(), "data", "artikel.csv"), "utf8"))
+}
+
+async function importText(text: string): Promise<ImportResult> {
   const rows = parseCsv(text)
   if (rows.length === 0 || !("artikelnummer" in rows[0])) {
     return { updated: 0, created: 0, skipped: [], error: "Die erste Zeile muss Spaltennamen enthalten, mindestens „artikelnummer“." }

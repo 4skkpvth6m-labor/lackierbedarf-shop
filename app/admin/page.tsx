@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { db } from "@/lib/supabase/admin"
+import StartCatalogButton from "./import/StartCatalogButton"
 
 export default async function AdminHome() {
   const count = async (table: string, col?: string, val?: string) => {
@@ -23,6 +24,12 @@ export default async function AdminHome() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Adminbereich</h1>
+      {products === 0 && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-5">
+          <p className="mb-3 font-semibold">Noch keine Artikel im Shop.</p>
+          <StartCatalogButton />
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Link key={t.href} href={t.href} className={`card p-5 transition hover:border-brand-500 ${t.hot ? "border-amber-300 bg-amber-50" : ""}`}>

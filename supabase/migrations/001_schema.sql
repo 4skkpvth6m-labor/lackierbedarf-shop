@@ -6,7 +6,7 @@
 -- mit dem Service-Role-Key. So kann niemand mit dem öffentlichen Anon-Key
 -- Listenpreise, Rabatte oder fremde Bestellungen abfragen.
 
-create extension if not exists pg_trgm;
+create extension if not exists pg_trgm with schema extensions;
 
 create table public.categories (
   id serial primary key,
@@ -33,7 +33,7 @@ create table public.products (
 );
 create index products_category_idx on public.products(category_id);
 create index products_search_idx on public.products
-  using gin ((sku || ' ' || coalesce(order_no,'') || ' ' || name || ' ' || coalesce(variant,'') || ' ' || coalesce(brand,'')) gin_trgm_ops);
+  using gin ((sku || ' ' || coalesce(order_no,'') || ' ' || name || ' ' || coalesce(variant,'') || ' ' || coalesce(brand,'')) extensions.gin_trgm_ops);
 
 create type public.customer_status as enum ('pending', 'approved', 'rejected');
 
@@ -126,6 +126,7 @@ begin
   return new;
 end;
 $$;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 create trigger on_auth_user_created
   after insert on auth.users
@@ -147,5 +148,6 @@ insert into public.categories (name, slug, sort) values
 create or replace function public.category_counts()
 returns table (category_id int, n bigint)
 language sql stable
+set search_path = public
 as $$ select category_id, count(*) from public.products where active group by category_id $$;
-revoke execute on function public.category_counts() from anon, authenticated;
+revoke execute on function public.category_counts() from public, anon, authenticated;

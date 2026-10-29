@@ -1,9 +1,15 @@
 import ImportForm from "./ImportForm"
+import StartCatalogButton from "./StartCatalogButton"
 
 export default function ImportPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <h1 className="text-2xl font-bold">Import & Export</h1>
+      <section className="card space-y-3 p-6">
+        <h2 className="text-lg font-bold">Startkatalog</h2>
+        <p className="text-sm text-slate-600">Spielt alle Artikel aus dem Katalog „Lackzubehör“ ein. Kann gefahrlos mehrfach ausgeführt werden – eingetragene Listenpreise werden nicht überschrieben.</p>
+        <StartCatalogButton />
+      </section>
       <section className="card space-y-3 p-6">
         <h2 className="text-lg font-bold">1. Aktuelle Artikelliste herunterladen</h2>
         <p className="text-sm text-slate-600">Enthält alle Artikel mit Listenpreis. In Excel öffnen, Preise in der Spalte <b>listenpreis</b> eintragen und als CSV speichern.</p>
